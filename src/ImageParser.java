@@ -1,9 +1,12 @@
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 
 
 public class ImageParser {
@@ -17,7 +20,7 @@ public ImageParser(String img) throws IOException {
 
     pixelArray = new ArrayList<>();
 
-    getPixelValues(in);
+    getRLTBPixelValues(in);
 
     decode(testAlgorithm());
 
@@ -27,26 +30,36 @@ public ImageParser(String img) throws IOException {
         int red = (pixel >> 16) & 0xff;
         int green = (pixel >> 8) & 0xff;
         int blue = (pixel) & 0xff;
-//        System.out.println("rgb: " + red + ", " + green + ", " + blue);
-//        System.out.println("Bit Values: " + Integer.toBinaryString(red) + ", " + Integer.toBinaryString(green) + ", " + Integer.toBinaryString(blue));
         pixelArray.add(new Pixel(red, green, blue));
 
     }
 
-    private void getPixelValues(BufferedImage image) {
+    private void getLRTBPixelValues(BufferedImage image) {
         int w = image.getWidth();
         int h = image.getHeight();
         System.out.println("width, height: " + w + ", " + h);
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-//                System.out.println("x,y: " + j + ", " + i);
                 int pixel = image.getRGB(j, i);
                 printPixelRGB(pixel);
-//                System.out.println("");
             }
         }
     }
+
+    private void getRLTBPixelValues(BufferedImage image) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        System.out.println("width, height: " + w + ", " + h);
+
+        for (int i = h-1; i >= 0; i--) {
+            for (int j = w-1; j >=0; j--) {
+                int pixel = image.getRGB(j, i);
+                printPixelRGB(pixel);
+            }
+        }
+    }
+
 
     public String testAlgorithm(){
 
@@ -61,36 +74,36 @@ public ImageParser(String img) throws IOException {
             String greenLast = green.substring(green.length() - 1);
             String blueLast = blue.substring(blue.length() - 1);
 
-//            messageBinary.append(redLast + greenLast + blueLast);
-//            messageBinary.append(redLast);
-//            messageBinary.append(greenLast);
-            messageBinary.append(blueLast);
-
+            messageBinary.append(redLast + greenLast + blueLast);
         }
 
         return messageBinary.toString();
     }
 
 
-    private void decode(String messageBinary){
 
-    System.out.println("Long binary - " + messageBinary);
+        private void decode(String messageBinary){
 
-        StringBuilder sb = new StringBuilder(); // Some place to store the chars
+        System.out.println("Long binary - " + messageBinary);
 
-            Arrays.stream( // Create a Stream
-                    messageBinary.toString().split("(?<=\\G.{8})") // Splits the input string into 8-char-sections (Since a char has 8 bits = 1 byte)
-            ).forEach(s -> // Go through each 8-char-section...
-                    sb.append((char) Integer.parseInt(s, 2)) // ...and turn it into an int and then to a char
-            );
-
-        String output = sb.toString(); // Output text (t)
-        System.out.println("output - " + output);
+            BigInteger bigInt = new BigInteger(messageBinary,2);
+            byte[] outputArray = bigInt.toByteArray();
+            Date d = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMDDSS");
+            String name = "output" + sdf.format(d);
+            try {
+                File outputFile = new File("ayy" + name + ".txt");
+                FileOutputStream fos = new FileOutputStream(outputFile);
+                fos.write(outputArray);
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
 
-}
 
 
 
