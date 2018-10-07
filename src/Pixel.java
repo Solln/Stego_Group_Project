@@ -15,24 +15,12 @@ public Pixel(int red, int green, int blue){
         return redValue;
     }
 
-    public void setRedValue(int redValue) {
-        this.redValue = redValue;
-    }
-
     public int getGreenValue() {
         return greenValue;
     }
 
-    public void setGreenValue(int greenValue) {
-        this.greenValue = greenValue;
-    }
-
     public int getBlueValue() {
         return blueValue;
-    }
-
-    public void setBlueValue(int blueValue) {
-        this.blueValue = blueValue;
     }
 
 }
